@@ -108,7 +108,7 @@ void PID::UpdateError(double cte,double dt) {
       case 3:
         {
           /* Let move onto the next index to optimize */
-          prev_twiddle_index = (prev_twiddle_index + 1) % 2;
+          prev_twiddle_index = (prev_twiddle_index + 1) % 3;
         printf("case %d:p index %d [%f] d[%f]\n",update_state,prev_twiddle_index,twiddle[prev_twiddle_index],d[prev_twiddle_index]);
           update_state = 0;
         }
@@ -123,11 +123,10 @@ void PID::UpdateError(double cte,double dt) {
   /* Apply Twiddle */
   Kp = twiddle[0];
   Kd = twiddle[1];
-  Ki =0;
+  Ki = twiddle[2];
 
   p_error = d[0];
   d_error = d[1];
-  i_error = d[2];
   /* i_error = d[2]; */
   /* Differential term */
   /* Sum of all previous cross track error over time. */
