@@ -42,7 +42,7 @@ int main()
   PID pid;
   /* Just some random guesses */
   Kp = 0.0f;
-  Kd = 0.5f;
+  Kd = 0.0f;
   Ki = 0.0f;
   pid.Init(Kp,Kd,Ki);
 
@@ -65,11 +65,11 @@ int main()
 
           curr_time = clock();
           double dt = (curr_time - prev_time)/CLOCKS_PER_SEC;
+          double throttle=0.2;
           pid.UpdateError(cte,dt);
-          double steering_adjustment = pid.TotalError();
-          steer_value -=steering_adjustment;
+          steer_value= deg2rad(pid.TotalError());
 
-          /* Clamp it between -1 and 1 */
+          /* Clamp steering between -1 and 1 */
           if(steer_value > 1.0){
             steer_value=1.0;
           }
@@ -78,6 +78,12 @@ int main()
             steer_value=-1.0;
           }
 
+          /* If we are going faster than 15 and turning a lot, */
+          /* slow down. Apply BRAKES */
+          if(fabs(steer_value) > 0.12 && speed > 15)
+          {
+            throttle = -0.1;
+          }
           /*
           * TODO: Calcuate steering value here, remember the steering value is
           * [-1, 1].
@@ -90,7 +96,7 @@ int main()
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = 0.3;
+          msgJson["throttle"] = throttle;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);

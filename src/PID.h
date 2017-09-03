@@ -18,6 +18,21 @@ public:
   double Kd;
 
   /*
+   * Twiddle stuff
+   * */
+  bool first_run=true;
+  double tolerence;
+  double twiddle[3];
+  double d[3];
+  double best_cte;
+  int twiddle_index;
+  int prev_twiddle_index;
+  int update_state;
+  double curr_cte;
+  double prev_cte;
+
+  double twiddle_sum();
+  /*
   * Constructor
   */
   PID();
