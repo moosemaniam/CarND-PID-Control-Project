@@ -45,7 +45,7 @@ void PID::Init(double Kp, double Ki, double Kd) {
 
 double PID::twiddle_sum()
 {
-  return(fabs(d[0])+ fabs(d[1])+fabs(d[2]));
+  return(fabs(d[0])+ fabs(d[1]));
 }
 
 void PID::UpdateError(double cte,double dt) {
@@ -122,7 +122,6 @@ void PID::UpdateError(double cte,double dt) {
   /* Apply Twiddle */
   Kp = twiddle[0];
   Kd = twiddle[1];
-  Ki = twiddle[2];
 
   p_error = d[0];
   d_error = d[1];
@@ -131,7 +130,7 @@ void PID::UpdateError(double cte,double dt) {
   /* Sum of all previous cross track error over time. */
   /* i_error +=(curr_cte - prev_cte)* dt; */
 
-  printf("Kp,Ki,Kd [%f,%f,%f]\n",Kp,Ki,Kd);
+//  printf("Kp,Ki,Kd [%f,%f,%f]\n",Kp,Ki,Kd);
   /* printf("errors [%f,%f,%f]\n\n\n",p_error,d_error,i_error); */
 
 }
