@@ -40,7 +40,6 @@ int main()
   double total_time=0.0f;
   double steering_adjustment;
   PID pid;
-  /* Just some random guesses */
   Kp = 0.0f;
   Kd = 0.0f;
   Ki = 0.0f;
@@ -78,11 +77,11 @@ int main()
             steer_value=-1.0;
           }
 
-          /* If we are going faster than 15 and turning a lot, */
-          /* slow down. Apply BRAKES */
-          if(fabs(steer_value) > 0.12 && speed > 15)
+          /* If we are going faster than 15 and turning , */
+          /* slow down*/
+          if(fabs(steer_value) > 0.15 && speed > 15)
           {
-            throttle = -0.1;
+            throttle = 0.1;
           }
           /*
           * TODO: Calcuate steering value here, remember the steering value is

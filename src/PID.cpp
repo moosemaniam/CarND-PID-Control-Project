@@ -7,8 +7,8 @@
 using namespace std;
 
 /*
-* TODO: Complete the PID class.
-*/
+ * TODO: Complete the PID class.
+ */
 
 PID::PID() {}
 
@@ -26,12 +26,12 @@ void PID::Init(double Kp, double Ki, double Kd) {
   i_error = 0.0f;
   twiddle_index=0;
 
-  tolerence = 0.00001;
+  tolerence = 0.001;
 
   best_cte=2048.0f;
-  twiddle[0]=0.0f;
-  twiddle[1]=0.0f;
-  twiddle[2]=0.0f;
+  twiddle[0]=Kp;
+  twiddle[1]=Kd;
+  twiddle[2]=Ki;
   update_state=0;
 
   twiddle_index=0;
@@ -54,17 +54,17 @@ void PID::UpdateError(double cte,double dt) {
   /* The Twiddle tutorial in Sebastian's video can be broken */
   /*   down into the below update state machines */
 
-  printf("VALUES %f %f %f %f\n",twiddle[0],twiddle[1],d[0],d[1]);
+  //printf("VALUES %f %f %f %f\n",twiddle[0],twiddle[1],d[0],d[1]);
   if(twiddle_sum() > tolerence)
   {
-    printf("CTE %f BEST_CTE %f\n",cte,best_cte);
+    //printf("CTE %f BEST_CTE %f\n",cte,best_cte);
     switch(update_state)
     {
       case 0:
         {
 
           twiddle[prev_twiddle_index] += d[prev_twiddle_index];
-          printf("case %d:p index %d [%f] d[%f]\n",update_state,prev_twiddle_index,twiddle[prev_twiddle_index],d[prev_twiddle_index]);
+          //printf("case %d:p index %d [%f] d[%f]\n",update_state,prev_twiddle_index,twiddle[prev_twiddle_index],d[prev_twiddle_index]);
           update_state=1;
         }
         break;
@@ -76,14 +76,14 @@ void PID::UpdateError(double cte,double dt) {
           {
             best_cte = cte;
             d[prev_twiddle_index] *= 1.1;
-          printf("**case %d:p index %d [%f] d[%f]\n",update_state,prev_twiddle_index,twiddle[prev_twiddle_index],d[prev_twiddle_index]);
+            //printf("**case %d:p index %d [%f] d[%f]\n",update_state,prev_twiddle_index,twiddle[prev_twiddle_index],d[prev_twiddle_index]);
             update_state=3;
           }
           else
           {
             /* Bad change, revert the change back */
             d[prev_twiddle_index] -= 2* d[prev_twiddle_index];
-          printf("case %d:p index %d [%f] d[%f]\n",update_state,prev_twiddle_index,twiddle[prev_twiddle_index],d[prev_twiddle_index]);
+            //printf("case %d:p index %d [%f] d[%f]\n",update_state,prev_twiddle_index,twiddle[prev_twiddle_index],d[prev_twiddle_index]);
             update_state=2;
           }
         }
@@ -94,13 +94,13 @@ void PID::UpdateError(double cte,double dt) {
           {
             best_cte = cte;
             d[prev_twiddle_index] *= 1.1;
-        printf("**case %d:p index %d [%f] d[%f]\n",update_state,prev_twiddle_index,twiddle[prev_twiddle_index],d[prev_twiddle_index]);
+            //printf("**case %d:p index %d [%f] d[%f]\n",update_state,prev_twiddle_index,twiddle[prev_twiddle_index],d[prev_twiddle_index]);
           }
           else
           {
             twiddle[prev_twiddle_index] += d[prev_twiddle_index];
             d[prev_twiddle_index] *= 0.9;
-        printf("case %d:p index %d [%f] d[%f]\n",update_state,prev_twiddle_index,twiddle[prev_twiddle_index],d[prev_twiddle_index]);
+            //printf("case %d:p index %d [%f] d[%f]\n",update_state,prev_twiddle_index,twiddle[prev_twiddle_index],d[prev_twiddle_index]);
           }
           update_state=3;
         }
@@ -108,14 +108,13 @@ void PID::UpdateError(double cte,double dt) {
       case 3:
         {
           /* Let move onto the next index to optimize */
-          prev_twiddle_index = (prev_twiddle_index + 1) % 3;
-        printf("case %d:p index %d [%f] d[%f]\n",update_state,prev_twiddle_index,twiddle[prev_twiddle_index],d[prev_twiddle_index]);
+          prev_twiddle_index = (prev_twiddle_index + 1) % 2;
+          //printf("case %d:p index %d [%f] d[%f]\n",update_state,prev_twiddle_index,twiddle[prev_twiddle_index],d[prev_twiddle_index]);
           update_state = 0;
         }
         break;
 
     }
-    cout << "P values " << twiddle[0] << " "<< twiddle[1]  << endl;
   }
 
 
@@ -127,19 +126,20 @@ void PID::UpdateError(double cte,double dt) {
 
   p_error = d[0];
   d_error = d[1];
-  /* i_error = d[2]; */
+  i_error = d[2];
   /* Differential term */
   /* Sum of all previous cross track error over time. */
-  i_error +=(curr_cte - prev_cte)* dt;
+  /* i_error +=(curr_cte - prev_cte)* dt; */
 
   printf("Kp,Ki,Kd [%f,%f,%f]\n",Kp,Ki,Kd);
-  printf("errors [%f,%f,%f]\n\n\n",p_error,d_error,i_error);
+  /* printf("errors [%f,%f,%f]\n\n\n",p_error,d_error,i_error); */
 
 }
 
 double PID::TotalError() {
-  double retval = (-Kp * curr_cte - Kd * (curr_cte - prev_cte)- Ki * i_error );
-  printf("steering calculation cte %f prev_cte %f\n",curr_cte,prev_cte);
+  double retval = (-Kp * curr_cte - Kd * (curr_cte - prev_cte) );
+  /* double retval = (-Kp * p_error - Kd * d_error - Ki * i_error ); */
+  //printf("steering calculation cte %f prev_cte %f\n",curr_cte,prev_cte);
   prev_cte = curr_cte;
   return retval;
 }
