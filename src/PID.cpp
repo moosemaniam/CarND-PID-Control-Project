@@ -47,7 +47,7 @@ double PID::twiddle_sum()
 {
   return(fabs(d[0])+ fabs(d[1]));
 }
-
+#define DISABLE_COEF_UPDATE
 void PID::UpdateError(double cte,double dt) {
 
   curr_cte = cte;
@@ -55,7 +55,8 @@ void PID::UpdateError(double cte,double dt) {
   /*   down into the below update state machines */
 
   //printf("VALUES %f %f %f %f\n",twiddle[0],twiddle[1],d[0],d[1]);
-  if(twiddle_sum() > tolerence)
+#ifndef DISABLE_COEF_UPDATE
+  if twiddle_sum() > tolerence)
   {
     //printf("CTE %f BEST_CTE %f\n",cte,best_cte);
     switch(update_state)
@@ -117,8 +118,6 @@ void PID::UpdateError(double cte,double dt) {
     }
   }
 
-
-
   /* Apply Twiddle */
   Kp = twiddle[0];
   Kd = twiddle[1];
@@ -126,11 +125,12 @@ void PID::UpdateError(double cte,double dt) {
   p_error = d[0];
   d_error = d[1];
   i_error = d[2];
+#endif
   /* Differential term */
   /* Sum of all previous cross track error over time. */
-  /* i_error +=(curr_cte - prev_cte)* dt; */
+  i_error +=(curr_cte - prev_cte)* dt;
 
-//  printf("Kp,Ki,Kd [%f,%f,%f]\n",Kp,Ki,Kd);
+  /* printf("Kp,Ki,Kd [%f,%f,%f]\n",Kp,Ki,Kd); */
   /* printf("errors [%f,%f,%f]\n\n\n",p_error,d_error,i_error); */
 
 }

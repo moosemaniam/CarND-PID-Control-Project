@@ -40,9 +40,11 @@ int main()
   double total_time=0.0f;
   double steering_adjustment;
   PID pid;
-  Kp = 0.0f;
-  Kd = 0.0f;
-  Ki = 0.0f;
+/* Kp,Ki,Kd [64.590094,0.000000,-38.460250] */
+  Kp = 64.590094;
+  Kd = -38.460250f;
+  Ki = 0.00001f;
+
   pid.Init(Kp,Kd,Ki);
 
   h.onMessage([&pid, &curr_time, &prev_time, &total_time](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
